@@ -53,11 +53,20 @@ const tableColumns = ref([
   },
 ])
 
-function atLeastOnePropertyMatches(text: string, user: iUser): boolean {
-  if (typeof user === 'string') {
-    return user.includes(text)
+function atLeastOnePropertyMatches(text: string, val: unknown): boolean {
+  let result: boolean = false
+  text = text.toLowerCase()
+  
+  if (typeof val === 'string') {
+    val = val.toLowerCase()
+    result = val.includes(text)
   }
-  return Object.values(user).some(val => atLeastOnePropertyMatches(text, val))
+  if (typeof val === 'object') {
+    result = Object.values(val).some((val) => {
+      return atLeastOnePropertyMatches(text, val)
+    })
+  }
+  return result
 }
 
 const searchMatches = ref([])
