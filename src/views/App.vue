@@ -4,14 +4,11 @@
       <div class="global-search-wrapper">
         <AutoComplete
           v-model:value="value"
-          :options="dataSource"
-          @search="handleSearch"
-          @select="onSelect"
-        >
+          :options="searchMatches"
+          @search="handleSearch">
           <template #option="item">
-            <div>
-              <span> Found {{ item.query }} on {{ item.category }} </span>
-              <span>{{ item.count }} results</span>
+            <div style="display: flex; justify-content: space-between">
+              {{ item.username }} {{ item.email }} {{ item.tel }}
             </div>
           </template>
           <InputSearch enter-button placeholder="input here" size="large"/>
@@ -31,33 +28,47 @@
 </template>
 <script lang="ts" setup>
 import { AutoComplete, InputSearch, Table } from 'ant-design-vue'
-import { useStoreMain } from 'src/stores/storeMain.ts'
-import { onMounted, ref } from 'vue'
+import { iUser, iUsers, useStoreMain } from 'src/stores/storeMain.ts'
+import { onMounted, Ref, ref } from 'vue'
 
 const store = useStoreMain()
-
-interface Option {
-  query: string;
-  category: string;
-  value: string;
-  count: number;
-}
-
 const value = ref('')
 const loading = ref(false)
-const dataSource = ref([])
+const dataSource: Ref<iUsers> = ref([])
 const tableColumns = ref([
   {
-    title: 'username',
+    title: 'Имя',
     dataIndex: 'username',
     key: 'username',
   },
   {
-    title: 'email',
+    title: 'Электронная почта',
     dataIndex: 'email',
     key: 'email',
   },
+  {
+    title: 'Номер телефона',
+    dataIndex: 'tel',
+    key: 'tel',
+  },
 ])
+
+function atLeastOnePropertyMatches(text: string, user: iUser) {
+  if (typeof user === 'string') {
+    return user.includes(text)
+  }
+  return Object.values(user).some(val => atLeastOnePropertyMatches(text, val))
+}
+
+const searchMatches = ref([])
+const searchResults = (query: string) => {
+  return dataSource.value.filter((user: iUser) => {
+    return atLeastOnePropertyMatches(query, user)
+  })
+}
+const handleSearch = (query: string) => {
+  searchMatches.value = query ? searchResults(query) : []
+}
 
 onMounted(() => {
   loading.value = true
@@ -66,29 +77,6 @@ onMounted(() => {
     loading.value = false
   }, 1000)
 })
-// const dataSource = ref<Option[]>([])
-// const onSelect = (value: string) => {
-//   console.log('onSelect', value)
-// }
-//
-// const getRandomInt = (max: number, min = 0) => {
-//   return Math.floor(Math.random() * (max - min + 1)) + min
-// }
-//
-// const searchResult = (query: string): Option[] => {
-//   return new Array(getRandomInt(5))
-//     .join('.')
-//     .split('.')
-//     .map((_item, idx) => ({
-//       query,
-//       category: `${ query }${ idx }`,
-//       value: `${ query }${ idx }`,
-//       count: getRandomInt(200, 100),
-//     }))
-// }
-// const handleSearch = (val: string) => {
-//   dataSource.value = val ? searchResult(val) : []
-// }
 </script>
 
 <style lang="scss">
