@@ -28,7 +28,7 @@
 </template>
 <script lang="ts" setup>
 import { AutoComplete, InputSearch, Table } from 'ant-design-vue'
-import { iUser, iUsers, useStoreMain } from 'src/stores/storeMain.ts'
+import { iUser, iUsers, useStoreMain } from 'src/stores/storeMain'
 import { onMounted, Ref, ref } from 'vue'
 
 const store = useStoreMain()
@@ -53,7 +53,7 @@ const tableColumns = ref([
   },
 ])
 
-function atLeastOnePropertyMatches(text: string, user: iUser) {
+function atLeastOnePropertyMatches(text: string, user: iUser): boolean {
   if (typeof user === 'string') {
     return user.includes(text)
   }
