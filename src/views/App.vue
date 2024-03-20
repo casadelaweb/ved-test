@@ -4,17 +4,13 @@
       <div class="global-search-wrapper">
         <AutoComplete
           v-model:value="value"
-          :dropdown-match-select-width="252"
           :options="dataSource"
-          style="width: 300px"
           @search="handleSearch"
           @select="onSelect"
         >
           <template #option="item">
-            <div style="display: flex; justify-content: space-between">
-          <span>
-            Found {{ item.query }} on {{ item.category }}
-          </span>
+            <div>
+              <span> Found {{ item.query }} on {{ item.category }} </span>
               <span>{{ item.count }} results</span>
             </div>
           </template>
@@ -25,7 +21,10 @@
   </header>
 
   <div class="container">
-    <Table :columns="tableColumns" :data-source="dataSource" class="table"/>
+    <Table :columns="tableColumns"
+           :data-source="dataSource"
+           :loading="loading"
+           class="table"/>
   </div>
 
 
@@ -33,7 +32,7 @@
 <script lang="ts" setup>
 import { AutoComplete, InputSearch, Table } from 'ant-design-vue'
 import { useStoreMain } from 'src/stores/storeMain.ts'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const store = useStoreMain()
 
@@ -45,21 +44,28 @@ interface Option {
 }
 
 const value = ref('')
-const dataSource = ref(store.fakeAPI)
+const loading = ref(false)
+const dataSource = ref([])
 const tableColumns = ref([
   {
-    title: 'Username',
-    dataIndex: 'Username',
-    key: 'Username',
-    width: '33%',
+    title: 'username',
+    dataIndex: 'username',
+    key: 'username',
   },
   {
-    title: 'Email',
-    dataIndex: 'Email',
-    key: 'Email',
-    width: '33%',
+    title: 'email',
+    dataIndex: 'email',
+    key: 'email',
   },
 ])
+
+onMounted(() => {
+  loading.value = true
+  setTimeout(() => {
+    dataSource.value = store.fakeAPI
+    loading.value = false
+  }, 1000)
+})
 // const dataSource = ref<Option[]>([])
 // const onSelect = (value: string) => {
 //   console.log('onSelect', value)
